@@ -1,0 +1,18 @@
+mkdir D:/dev/work/mongodb-4.0.3/data/db
+
+mkdir D:/dev/work/mongodb-4.0.3/data/log
+
+touch D:/dev/work/mongodb-4.0.3/mongo.cfg
+	dbpath=D:/dev/work/mongodb-4.0.3/data/db
+	logpath=D:/dev/work/mongodb-4.0.3/data/log/mongo.log
+
+mongod --config "D:/dev/work/mongodb-4.0.3/mongo.cfg"
+
+mongod --config "D:/dev/work/mongodb-4.0.3/mongo.cfg" --install --serviceName "MongoDB"
+
+net stop MongoDB
+sc delete MongoDB
+sc create MongoDB binPath= "\"D:/dev/work/mongodb-4.0.3/bin/mongod.exe\" --service --config=\"D:/dev/work/mongodb-4.0.3/mongo.cfg\"" DisplayName= "MongoDB" start= "auto"
+net start MongoDB
+
+http://localhost:27017
