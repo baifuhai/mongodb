@@ -1,9 +1,6 @@
 db.hostInfo()
 db.serverStatus().tcmalloc
 
-use admin
-db.runCommand({"removeShard": "shardReplicaSet1"})
-
 // 添加/删除主机
 rs.add("127.0.0.1:27011")
 rs.remove("127.0.0.1:27011")
@@ -17,6 +14,14 @@ rs.conf()
 // 加分片
 sh.addShard("shardReplicaSet/127.0.0.1:27011,127.0.0.1:27012")
 
+// 删除分片
+use admin
+db.runCommand({"removeShard": "shardReplicaSet"})
+
+// 把数据库testdb的主分片数据迁移到另外一个分片shard2，并使之成为主分片
+db.runCommand({"movePrimary": "testdb", "to": "shard2"})
+db.runCommand({"flushRouterConfig": 1})
+
 // 数据库开启分片
 sh.enableSharding("testdb")
 
@@ -25,6 +30,35 @@ sh.shardCollection("testdb.collection", {occur_time: 1})
 
 // 查看分片状态
 sh.status()
+use admin
+db.runCommand({"listShards": 1})
+
+// 均衡器开启
+sh.startBalancer()
+sh.setBalancerState(true)
+
+// 均衡器关闭
+sh.stopBalancer()
+sh.setBalancerState(false)
+
+// 均衡器运行时间
+use config
+db.settings.find()
+db.settings.update(
+	{_id: "balancer"},
+	{$set: {activeWindow: {start: "23:00", stop: "09:00"}}},
+	{upsert: true}
+)
+db.settings.insertOne({_id: "chunksize", value: 32})
+
+// 备份
+sh.stopBalancer()
+db.fsyncLock()
+mongodump --host 127.0.0.1 --port 27017 -uroot -p123456 -d testdb --authenticationDatabase admin -o d:/backup/
+db.fsyncUnlock()
+
+// 还原
+mongorestore --host 127.0.0.1 --port 27017 -uroot -p123456 -d testdb --authenticationDatabase admin --drop backup/testdb
 
 // 查看表状态
 db.collection.stats()
@@ -104,6 +138,9 @@ db.adminCommand({getParameter: "*"})
 // 创建用户
 db.createUser({user: "root", pwd: "123456", roles: [{role: "root", db: "admin"}]})
 db.createUser({user: "testdb", pwd: "123456", roles: [{role: "dbOwner", db: "testdb"}]})
+
+// 认证
+db.auth("root", "123456")
 
 // 表加索引
 db.collection.createIndex({age: 1, email: 1}, {name: "idx_age_email"})

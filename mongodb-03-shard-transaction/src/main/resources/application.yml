@@ -1,0 +1,15 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27010/shard-transaction
+      field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+
+logging:
+  file:
+    name: mongodb-03-shard-transaction/log.txt
+  level:
+    com.test: debug
+    org.springframework.data.mongodb: info
+
+server:
+  port: 8888

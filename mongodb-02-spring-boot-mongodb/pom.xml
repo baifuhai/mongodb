@@ -14,9 +14,10 @@
 	<artifactId>mongodb-02-spring-boot-mongodb</artifactId>
 	<version>0.0.1</version>
 
+	<name>mongodb-02-spring-boot-mongodb</name>
+	<description>Demo project for Spring Boot</description>
+
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 	</properties>
 
