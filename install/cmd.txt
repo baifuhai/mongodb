@@ -38,6 +38,10 @@ sh.startBalancer()
 sh.setBalancerState(true)
 
 // 均衡器关闭
+while(sh.isBalancerRunning()){
+	print("waiting...");
+	sleep(500);
+}
 sh.stopBalancer()
 sh.setBalancerState(false)
 
@@ -49,7 +53,7 @@ db.settings.update(
 	{$set: {activeWindow: {start: "23:00", stop: "09:00"}}},
 	{upsert: true}
 )
-db.settings.insertOne({_id: "chunksize", value: 32})
+db.settings.insertOne({_id: "chunkSize", value: 32})
 
 // 备份
 sh.stopBalancer()
