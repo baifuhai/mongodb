@@ -107,6 +107,96 @@ rs.initiate({
 
 exit
 
+rem shard6
+
+net stop MongoDBShard6
+sc delete MongoDBShard6
+sc create MongoDBShard6 binPath= "\"D:/new/sjzt/mongodb-win32-x86_64-2012plus-4.2.7/bin/mongod.exe\" --service --config=\"D:/new/sjzt/mongodb-cluster/shard/s6/mongo.cfg\"" DisplayName= "MongoDBShard6" start= "auto"
+net start MongoDBShard6
+
+mongo --port 27016
+
+rs.initiate({
+	_id: "shardReplicaSet6",
+	members: [
+		{_id: 0, host: "127.0.0.1:27016"}
+	]
+})
+
+exit
+
+rem shard7
+
+net stop MongoDBShard7
+sc delete MongoDBShard7
+sc create MongoDBShard7 binPath= "\"D:/new/sjzt/mongodb-win32-x86_64-2012plus-4.2.7/bin/mongod.exe\" --service --config=\"D:/new/sjzt/mongodb-cluster/shard/s7/mongo.cfg\"" DisplayName= "MongoDBShard7" start= "auto"
+net start MongoDBShard7
+
+mongo --port 27017
+
+rs.initiate({
+	_id: "shardReplicaSet7",
+	members: [
+		{_id: 0, host: "127.0.0.1:27017"}
+	]
+})
+
+exit
+
+rem shard8
+
+net stop MongoDBShard8
+sc delete MongoDBShard8
+sc create MongoDBShard8 binPath= "\"D:/new/sjzt/mongodb-win32-x86_64-2012plus-4.2.7/bin/mongod.exe\" --service --config=\"D:/new/sjzt/mongodb-cluster/shard/s8/mongo.cfg\"" DisplayName= "MongoDBShard8" start= "auto"
+net start MongoDBShard8
+
+mongo --port 27018
+
+rs.initiate({
+	_id: "shardReplicaSet8",
+	members: [
+		{_id: 0, host: "127.0.0.1:27018"}
+	]
+})
+
+exit
+
+rem shard9
+
+net stop MongoDBShard9
+sc delete MongoDBShard9
+sc create MongoDBShard9 binPath= "\"D:/new/sjzt/mongodb-win32-x86_64-2012plus-4.2.7/bin/mongod.exe\" --service --config=\"D:/new/sjzt/mongodb-cluster/shard/s9/mongo.cfg\"" DisplayName= "MongoDBShard9" start= "auto"
+net start MongoDBShard9
+
+mongo --port 27019
+
+rs.initiate({
+	_id: "shardReplicaSet9",
+	members: [
+		{_id: 0, host: "127.0.0.1:27019"}
+	]
+})
+
+exit
+
+rem shard10
+
+net stop MongoDBShard10
+sc delete MongoDBShard10
+sc create MongoDBShard10 binPath= "\"D:/new/sjzt/mongodb-win32-x86_64-2012plus-4.2.7/bin/mongod.exe\" --service --config=\"D:/new/sjzt/mongodb-cluster/shard/s10/mongo.cfg\"" DisplayName= "MongoDBShard10" start= "auto"
+net start MongoDBShard10
+
+mongo --port 27020
+
+rs.initiate({
+	_id: "shardReplicaSet10",
+	members: [
+		{_id: 0, host: "127.0.0.1:27020"}
+	]
+})
+
+exit
+
 rem mongos
 
 net stop MongoDBMongos
@@ -121,6 +211,11 @@ sh.addShard("shardReplicaSet2/127.0.0.1:27012")
 sh.addShard("shardReplicaSet3/127.0.0.1:27013")
 sh.addShard("shardReplicaSet4/127.0.0.1:27014")
 sh.addShard("shardReplicaSet5/127.0.0.1:27015")
+sh.addShard("shardReplicaSet6/127.0.0.1:27016")
+sh.addShard("shardReplicaSet7/127.0.0.1:27017")
+sh.addShard("shardReplicaSet8/127.0.0.1:27018")
+sh.addShard("shardReplicaSet9/127.0.0.1:27019")
+sh.addShard("shardReplicaSet10/127.0.0.1:27020")
 
 sh.enableSharding("zd_pd_data_middle_platform")
 
@@ -138,5 +233,3 @@ sh.shardCollection("zd_pd_data_middle_platform.t_tran_temperature_info", {occur_
 sh.status()
 
 exit
-
-pause

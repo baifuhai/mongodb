@@ -144,6 +144,7 @@ db.createUser({user: "root", pwd: "123456", roles: [{role: "root", db: "admin"}]
 db.createUser({user: "testdb", pwd: "123456", roles: [{role: "dbOwner", db: "testdb"}]})
 
 // 认证
+use admin
 db.auth("root", "123456")
 
 // 表加索引
