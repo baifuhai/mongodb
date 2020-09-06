@@ -1,31 +1,22 @@
 package com.test.entity;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
+
 import java.util.Map;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Person {
 	
-	private String name;
-	private int age;
-	private Map<String, Object> interests;
-	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public int getAge() {
-		return age;
-	}
-	public void setAge(int age) {
-		this.age = age;
-	}
-	public Map<String, Object> getInterests() {
-		return interests;
-	}
-	public void setInterests(Map<String, Object> interests) {
-		this.interests = interests;
-	}
+	String name;
+	int age;
+	Map<String, Object> interests;
 	
 	@Override
 	public String toString() {
