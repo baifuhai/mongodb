@@ -149,6 +149,8 @@ db.auth("root", "123456")
 
 // 表加索引
 db.collection.createIndex({age: 1, email: 1}, {name: "idx_age_email"})
+db.collection.dropIndex({age: 1, email: 1})
+db.collection.dropIndex("idx_age_email")
 
 // mapReduce
 db.collection.mapReduce(
