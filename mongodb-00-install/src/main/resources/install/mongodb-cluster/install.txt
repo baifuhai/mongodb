@@ -1,0 +1,67 @@
+rem config
+
+net stop MongoDBConfig
+sc delete MongoDBConfig
+sc create MongoDBConfig binPath= "\"${baseDir}/${mongodbDirName}/bin/mongod.exe\" --service --config=\"${baseDir}/mongodb-cluster/config/mongo.cfg\"" DisplayName= "MongoDBConfig" start= "auto"
+net start MongoDBConfig
+
+${baseDir}/${mongodbDirName}/bin/mongo --port ${configPort}
+
+rs.initiate({
+	_id: "configReplicaSet",
+	configsvr: true,
+	members: [
+		{_id: 0, host: "${configIp}:${configPort}"}
+	]
+})
+
+exit
+
+${installShard}
+
+rem mongos
+
+net stop MongoDBMongos
+sc delete MongoDBMongos
+sc create MongoDBMongos binPath= "\"${baseDir}/${mongodbDirName}/bin/mongos.exe\" --service --config=\"${baseDir}/mongodb-cluster/mongos/mongo.cfg\"" DisplayName= "MongoDBMongos" start= "auto"
+net start MongoDBMongos
+
+${baseDir}/${mongodbDirName}/bin/mongo --port ${mongosPort}
+
+${addShard}
+
+sh.enableSharding("zd_pd_data_middle_platform")
+
+sh.shardCollection("zd_pd_data_middle_platform.t_busbar_ground_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_breaker_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_busbar_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_line_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_load_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_sub_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_tran_imbalance_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_tran_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_measure_winding_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_peak_sudden_change", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_single_power_important_user_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_single_power_sub_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_sub_aisle_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_tran_temperature_info", {occur_time: 1})
+
+use zd_pd_data_middle_platform
+
+db.t_busbar_ground_info.dropIndex("occur_time_1")
+db.t_measure_breaker_info.dropIndex("occur_time_1")
+db.t_measure_busbar_info.dropIndex("occur_time_1")
+db.t_measure_line_info.dropIndex("occur_time_1")
+db.t_measure_load_info.dropIndex("occur_time_1")
+db.t_measure_sub_info.dropIndex("occur_time_1")
+db.t_measure_tran_imbalance_info.dropIndex("occur_time_1")
+db.t_measure_tran_info.dropIndex("occur_time_1")
+db.t_measure_winding_info.dropIndex("occur_time_1")
+db.t_peak_sudden_change.dropIndex("occur_time_1")
+db.t_single_power_important_user_info.dropIndex("occur_time_1")
+db.t_single_power_sub_info.dropIndex("occur_time_1")
+db.t_sub_aisle_info.dropIndex("occur_time_1")
+db.t_tran_temperature_info.dropIndex("occur_time_1")
+
+exit

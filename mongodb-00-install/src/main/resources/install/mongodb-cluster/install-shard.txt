@@ -1,0 +1,17 @@
+rem shard${i}
+
+net stop MongoDBShard${i}
+sc delete MongoDBShard${i}
+sc create MongoDBShard${i} binPath= "\"${baseDir}/${mongodbDirName}/bin/mongod.exe\" --service --config=\"${baseDir}/mongodb-cluster/shard/s${i}/mongo.cfg\"" DisplayName= "MongoDBShard${i}" start= "auto"
+net start MongoDBShard${i}
+
+${baseDir}/${mongodbDirName}/bin/mongo --port ${shardPort}
+
+rs.initiate({
+	_id: "shardReplicaSet${i}",
+	members: [
+		{_id: 0, host: "${shardIp}:${shardPort}"}
+	]
+})
+
+exit

@@ -1,0 +1,11 @@
+rem mongos
+
+net stop MongoDBMongos
+sc delete MongoDBMongos
+
+${deleteShard}
+
+rem config
+
+net stop MongoDBConfig
+sc delete MongoDBConfig

@@ -1,0 +1,228 @@
+db.hostInfo()
+db.serverStatus().tcmalloc
+
+// 添加/删除主机
+rs.add("127.0.0.1:27011")
+rs.remove("127.0.0.1:27011")
+
+// 查看复制集状态
+rs.status()
+
+// 查看复制集配置
+rs.conf()
+
+// 加分片
+sh.addShard("shardReplicaSet/127.0.0.1:27011,127.0.0.1:27012")
+
+// 删除分片
+use admin
+db.runCommand({"removeShard": "shardReplicaSet"})
+
+// 把数据库testdb的主分片数据迁移到另外一个分片shard2，并使之成为主分片
+use admin
+db.runCommand({"movePrimary": "testdb", "to": "shard2"})
+db.runCommand({"flushRouterConfig": 1})
+
+// 数据库开启分片
+sh.enableSharding("testdb")
+
+// 表分片
+sh.shardCollection("testdb.collection", {occur_time: 1})
+
+// 查看分片状态
+sh.status()
+use admin
+db.runCommand({"listShards": 1})
+
+// 均衡器开启
+sh.startBalancer()
+sh.setBalancerState(true)
+
+// 均衡器关闭
+while(sh.isBalancerRunning()){
+	print("waiting...");
+	sleep(500);
+}
+sh.stopBalancer()
+sh.setBalancerState(false)
+
+// 均衡器运行时间
+use config
+db.settings.find()
+db.settings.update(
+	{_id: "balancer"},
+	{$set: {activeWindow: {start: "23:00", stop: "09:00"}}},
+	{upsert: true}
+)
+db.settings.insertOne({_id: "chunkSize", value: 32})
+
+// 备份
+sh.stopBalancer()
+db.fsyncLock()
+mongodump --host 127.0.0.1 --port 27017 -uroot -p123456 -d testdb --authenticationDatabase admin -o d:/backup/
+db.fsyncUnlock()
+
+// 还原
+mongorestore --host 127.0.0.1 --port 27017 -uroot -p123456 -d testdb --authenticationDatabase admin --drop backup/testdb
+
+// 查看表状态
+db.collection.stats()
+
+// 查询
+db.collection.count()
+db.collection.count({})
+db.collection.countDocuments() //error
+db.collection.countDocuments({})
+
+db.collection.find().count()
+db.collection.find().count({})
+db.collection.find().countDocuments() //error
+db.collection.find().countDocuments({}) //error
+
+db.collection.find()
+db.collection.find({})
+db.collection.find({name: "a"})
+db.collection.find({age: {$gte: 0, $lt: 50}})
+db.collection.find({age: {$in: [10, 20]}})
+db.collection.find().sort({age: -1})
+db.collection.find().skip(0).limit(5)
+
+db.collection.find({
+	a: 1,
+	$and: [{
+		$or: [{
+			b: 1
+		}, {
+			b: 2
+		}]
+	}]
+});
+=
+db.collection.find({
+	a: 1,
+	$or: [{
+		b: 1
+	}, {
+		b: 2
+	}]
+});
+
+// 查询并修改
+db.collection.find({name: "a"}).forEach(
+	function(doc){
+		db.collection.updateOne({_id: doc._id}, {$set: {age: doc.age + 1}})
+	}
+)
+
+// 新增
+db.collection.insertMany([
+	{a: 1, b: 1},
+	{a: 2, b: 1},
+	{a: 3, b: 1},
+	{a: 4, b: 2},
+	{a: 5, b: 2},
+	{a: 6, b: 2}
+])
+for (var i = 0; i < 10000; i++) {
+    db.collection.insertOne({name: "name" + i, time: "time" + i})
+}
+
+// 修改
+db.collection.update({}, {$set: {age: 20}}, {multi: true})
+db.collection.updateOne({}, {$set: {age: 20}})
+db.collection.updateMany({name: "a"}, {$set: {age: NumberInt(20)}, $unset: {email: 1}})
+
+// 删除
+db.collection.remove({})
+db.collection.remove({name: "a"})
+
+// 设置/查询参数
+db.adminCommand({setParameter: 1, transactionLifetimeLimitSeconds: 3600})
+db.adminCommand({getParameter: "*"})
+
+// 创建用户
+db.createUser({user: "root", pwd: "123456", roles: [{role: "root", db: "admin"}]})
+db.createUser({user: "testdb", pwd: "123456", roles: [{role: "dbOwner", db: "testdb"}]})
+
+// 认证
+use admin
+db.auth("root", "123456")
+
+// 表加索引
+db.collection.createIndex({age: 1, email: 1}, {name: "idx_age_email"})
+db.collection.dropIndex({age: 1, email: 1})
+db.collection.dropIndex("idx_age_email")
+
+// mapReduce
+db.collection.mapReduce(
+	function(){
+		emit({
+			occur_time_month: this.occur_time_month,
+			dev_id: this.dev_id
+		}, this);
+	},
+	function(key, values){
+		var v;
+		values.forEach(function(val){
+			if (!v || v.r_vm < val.r_vm) {
+				v = val;
+			}
+		});
+		return v;
+		/*
+		values.sort(function(a,b){
+			return b.r_vm - a.r_vm;
+		});
+		return values[0];
+		*/
+	},
+	{
+		query: {occur_time_year: 2020},
+		out: {inline: 1}
+	}
+).find()
+
+db.collection.mapReduce(
+	function(){
+		emit(this.occur_time, 1);
+	},
+	function(key, values){
+		return Array.sum(values);
+	},
+	{
+		query: {},
+		out: {inline: 1}
+	}
+).find()
+
+// aggregate
+db.collection.aggregate([
+	{$match: {occur_time: {$gte: "2020-06-12 00:00:00", $lt: "2020-06-13 00:00:00"}}},
+	{$project: {occur_time: 1}},
+	{$group: {_id: "$occur_time", count: {$sum: 1}}},
+	{$match: {count: {$gt: 0}}},
+	{$sort: {_id: 1, count: 1}},
+	{$skip: 0},
+	{$limit: 20},
+	{$count: "c"}
+], {allowDiskUse: true})
+
+db.collection.aggregate([
+	{$group: {_id: null, avg_load_rate: {$avg: "$load_rate"}}}
+])
+
+db.collection.aggregate([
+	{$match: {occur_time_year: 2020, occur_time_month: 6}},
+	{$group: {_id: {occur_time_day: "$occur_time_day"}, count: {$sum: 1}}},
+	{$sort: {"_id.occur_time_day": 1, count: 1}}
+])
+
+db.collection.aggregate([
+	{$group: {_id: {occur_time_year: "$occur_time_year", occur_time_month: "$occur_time_month", occur_time_day: "$occur_time_day"}, count: {$sum: 1}}},
+	{$sort: {"_id.occur_time_day": 1, count: 1}}
+])
+
+db.collection.aggregate([
+	{$sort: {dev_id: 1, load_rate: 1}},
+	{$group: {_id: "$dev_id", doc: {$last: "$$ROOT"}} }
+])
