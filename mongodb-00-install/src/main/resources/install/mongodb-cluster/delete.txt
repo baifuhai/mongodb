@@ -1,11 +1,7 @@
-rem mongos
-
 net stop MongoDBMongos
-sc delete MongoDBMongos
-
-${deleteShard}
-
-rem config
-
+${stopShard}
 net stop MongoDBConfig
+
+sc delete MongoDBMongos
+${deleteShard}
 sc delete MongoDBConfig

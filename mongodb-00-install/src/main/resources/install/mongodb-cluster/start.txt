@@ -1,0 +1,3 @@
+net start MongoDBConfig
+${startShard}
+net start MongoDBMongos
