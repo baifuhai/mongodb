@@ -2,10 +2,10 @@ rem config
 
 net stop MongoDBConfig
 sc delete MongoDBConfig
-sc create MongoDBConfig binPath= "\"${baseDir}/${mongodbDirName}/bin/mongod.exe\" --service --config=\"${baseDir}/mongodb-cluster/config/mongo.cfg\"" DisplayName= "MongoDBConfig" start= "auto"
+sc create MongoDBConfig binPath= "\"${mongodbHome}/bin/mongod.exe\" --service --config \"${mongodbCluster}/config/mongo.cfg\"" DisplayName= "MongoDBConfig" start= "auto"
 net start MongoDBConfig
 
-${baseDir}/${mongodbDirName}/bin/mongo --port ${configPort}
+${mongodbHome}/bin/mongo --port ${configPort}
 
 rs.initiate({
 	_id: "configReplicaSet",
@@ -23,10 +23,10 @@ rem mongos
 
 net stop MongoDBMongos
 sc delete MongoDBMongos
-sc create MongoDBMongos binPath= "\"${baseDir}/${mongodbDirName}/bin/mongos.exe\" --service --config=\"${baseDir}/mongodb-cluster/mongos/mongo.cfg\"" DisplayName= "MongoDBMongos" start= "auto"
+sc create MongoDBMongos binPath= "\"${mongodbHome}/bin/mongos.exe\" --service --config \"${mongodbCluster}/mongos/mongo.cfg\"" DisplayName= "MongoDBMongos" start= "auto"
 net start MongoDBMongos
 
-${baseDir}/${mongodbDirName}/bin/mongo --port ${mongosPort}
+${mongodbHome}/bin/mongo --port ${mongosPort}
 
 ${addShard}
 

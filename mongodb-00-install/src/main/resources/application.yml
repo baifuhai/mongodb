@@ -1,0 +1,13 @@
+restart:
+  enabled: true
+  beginHour: 3
+  endHour: 6
+  interval: PT60S
+
+mongodb:
+  cluster: E:/dev/mongodb-cluster
+  home: E:/dev/mongodb-win32-x86_64-2012plus-4.2.7
+  host: 127.0.0.1
+  beginShardPort: 27000
+  beginShardNumber: 1
+  endShardNumber: 5

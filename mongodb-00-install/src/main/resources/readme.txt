@@ -274,3 +274,13 @@ sc delete MongoDBConfig
 17.删除mongodb的两个目录以释放硬盘空间
 D:/new/sjzt/mongodb-cluster
 D:/new/sjzt/mongodb-win32-x86_64-2012plus-4.2.7
+
+====================================================================
+
+两个独立的shard-cluster怎么合并
+1.sc1的mongos添加sc2的所有分片，sc2的主分片无法添加，已添加的分片，也无法进行数据迁移
+2.sc2的config服务停了，data和log目录清空，再启动服务
+3.sc1的config复制集添加sc2的config
+4.sc2的主分片删除数据库
+5.重启sc2的mongos和shard
+6.sc1的mongos添加sc2的主分片

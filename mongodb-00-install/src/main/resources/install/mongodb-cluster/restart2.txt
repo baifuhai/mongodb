@@ -1,0 +1,7 @@
+net stop MongoDBConfig
+net start MongoDBConfig
+
+${stopStartShard}
+
+net stop MongoDBMongos
+net start MongoDBMongos
