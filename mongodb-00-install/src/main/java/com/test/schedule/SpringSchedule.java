@@ -19,7 +19,7 @@ public class SpringSchedule {
 	}
 
 	@Scheduled(cron = "0 0 0 * * ?")
-	public void logRotateAndCompressLogFile() {
+	public void logRotateAndCompressLogFile() throws Exception {
 		mongoService.logRotateAndCompressLogFile();
 	}
 

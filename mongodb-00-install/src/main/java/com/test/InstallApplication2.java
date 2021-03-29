@@ -64,10 +64,19 @@ public class InstallApplication2 {
 			JPanel panel = new JPanel();
 			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
+			// Path mongodbCluster
+			String path = "E:/dev/mongodb-cluster";
+
+			// FileChooser mongodbCluster
+			fileChooserMongodbCluster = new JFileChooser();
+			fileChooserMongodbCluster.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			fileChooserMongodbCluster.setMultiSelectionEnabled(false);
+			fileChooserMongodbCluster.setSelectedFile(new File(path));
+
 			// TextField mongodbCluster
 			textFieldMongodbCluster = new JTextField(26);
 			textFieldMongodbCluster.setEditable(false);
-			textFieldMongodbCluster.setText("E:/dev/mongodb-cluster");
+			textFieldMongodbCluster.setText(path);
 			panel.add(textFieldMongodbCluster);
 
 			// Button mongodbCluster
@@ -83,11 +92,6 @@ public class InstallApplication2 {
 			});
 			panel.add(buttonMongodbCluster);
 
-			// FileChooser mongodbCluster
-			fileChooserMongodbCluster = new JFileChooser();
-			fileChooserMongodbCluster.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			fileChooserMongodbCluster.setMultiSelectionEnabled(false);
-
 			// add to panelContainer
 			panelContainer.add(panel);
 		}
@@ -97,10 +101,19 @@ public class InstallApplication2 {
 			JPanel panel = new JPanel();
 			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
+			// Path mongodbHome
+			String path = "E:/dev/mongodb-win32-x86_64-2012plus-4.2.7";
+
+			// FileChooser mongodbHome
+			fileChooserMongodbHome = new JFileChooser();
+			fileChooserMongodbHome.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			fileChooserMongodbHome.setMultiSelectionEnabled(false);
+			fileChooserMongodbHome.setSelectedFile(new File(path));
+
 			// TextField mongodbHome
 			textFieldMongodbHome = new JTextField(26);
 			textFieldMongodbHome.setEditable(false);
-			textFieldMongodbHome.setText("E:/dev/mongodb-win32-x86_64-2012plus-4.2.7");
+			textFieldMongodbHome.setText(path);
 			panel.add(textFieldMongodbHome);
 
 			// Button mongodbHome
@@ -115,11 +128,6 @@ public class InstallApplication2 {
 				}
 			});
 			panel.add(buttonMongodbHome);
-
-			// FileChooser mongodbHome
-			fileChooserMongodbHome = new JFileChooser();
-			fileChooserMongodbHome.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			fileChooserMongodbHome.setMultiSelectionEnabled(false);
 
 			// add to panelContainer
 			panelContainer.add(panel);
@@ -238,19 +246,17 @@ public class InstallApplication2 {
 				@Override
 				public void actionPerformed(ActionEvent event) {
 					int returnVal = JOptionPane.showConfirmDialog(panelContainer, "确定？", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-					if (returnVal == JOptionPane.NO_OPTION) {
-						return;
+					if (returnVal == JOptionPane.YES_OPTION) {
+						new Thread(() -> {
+							try {
+								run(event);
+								JOptionPane.showMessageDialog(panelContainer, "执行成功", "提示", JOptionPane.INFORMATION_MESSAGE);
+							} catch (Exception e) {
+								log.error(e.getMessage(), e);
+								JOptionPane.showMessageDialog(panelContainer, "执行失败：" + e.getMessage(), "提示", JOptionPane.ERROR_MESSAGE);
+							}
+						}).start();
 					}
-
-					new Thread(() -> {
-						try {
-							run(event);
-							JOptionPane.showMessageDialog(panelContainer, "执行成功", "提示", JOptionPane.INFORMATION_MESSAGE);
-						} catch (Exception e) {
-							log.error(e.getMessage(), e);
-							JOptionPane.showMessageDialog(panelContainer, "执行失败：" + e.getMessage(), "提示", JOptionPane.ERROR_MESSAGE);
-						}
-					}).start();
 				}
 			});
 			panel.add(buttonRun);
@@ -516,7 +522,7 @@ public class InstallApplication2 {
 		appendText(commandResult, textPane);
 	}
 
-	private void replicaSetInit(String host, int port, String replicaSetId, String memberIp, int memberPort, boolean isConfig, JTextPane textPane, String mongodbHome) {
+	private void replicaSetInit(String host, int port, String replicaSetId, String memberIp, int memberPort, boolean isConfig, JTextPane textPane, String mongodbHome) throws Exception {
 		try {
 			appendTextLn(String.format("%s/bin/mongo --host %s --port %d", mongodbHome, host, port), textPane);
 			appendTextLn(textPane);
@@ -552,7 +558,7 @@ public class InstallApplication2 {
 		}
 	}
 
-	private void mongosInit(String host, int port, String shardIp, int beginShardPort, int beginShardNumber, int endShardNumber, JTextPane textPane, String mongodbHome) {
+	private void mongosInit(String host, int port, String shardIp, int beginShardPort, int beginShardNumber, int endShardNumber, JTextPane textPane, String mongodbHome) throws Exception {
 		try {
 			appendTextLn(String.format("%s/bin/mongo --host %s --port %d", mongodbHome, host, port), textPane);
 			appendTextLn(textPane);

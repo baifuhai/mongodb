@@ -15,30 +15,37 @@ import java.util.zip.Deflater;
 @Slf4j
 public class MongoUtil {
 
-	public static <T> T adminCallback(String host, int port, MongoDatabaseCallback<T> callback) {
+	public static <T> T adminCallback(String host, int port, MongoDatabaseCallback<T> callback) throws Exception {
 		return runCallback(host, port, "admin", callback);
 	}
 
-	public static <T> T runCallback(String host, int port, String databaseName, MongoDatabaseCallback<T> callback) {
-		MongoClient mongoClient = new MongoClient(host, port);
+	public static <T> T runCallback(String host, int port, String databaseName, MongoDatabaseCallback<T> callback) throws Exception {
+		MongoClient mongoClient = null;
+		try {
+			mongoClient = new MongoClient(host, port);
 
-		MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
+			MongoDatabase mongoDatabase = mongoClient.getDatabase(databaseName);
 
-		T result = callback.doWithMongoDatabase(mongoDatabase);
+			T result = callback.doWithMongoDatabase(mongoDatabase);
 
-		mongoClient.close();
-
-		return result;
+			return result;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (mongoClient != null) {
+				mongoClient.close();
+			}
+		}
 	}
 
-	public static Document adminCommand(String host, int port, Document commandDoc) {
+	public static Document adminCommand(String host, int port, Document commandDoc) throws Exception {
 		return runCommand(host, port, "admin", commandDoc);
 	}
 
-	public static Document runCommand(String host, int port, String databaseName, Document commandDoc) {
+	public static Document runCommand(String host, int port, String databaseName, Document commandDoc) throws Exception {
 		Document resultDoc = runCallback(host, port, databaseName, new MongoDatabaseCallback<Document>() {
 			@Override
-			public Document doWithMongoDatabase(MongoDatabase mongoDatabase) {
+			public Document doWithMongoDatabase(MongoDatabase mongoDatabase) throws Exception {
 				Document resultDoc = mongoDatabase.runCommand(commandDoc);
 				return resultDoc;
 			}
@@ -46,69 +53,81 @@ public class MongoUtil {
 		return resultDoc;
 	}
 
-	public static void shutdown(String host, int port) {
+	public static void shutdown(String host, int port) throws Exception {
 		Document commandDoc = new Document("shutdown", true);
 
-		log.info("runCommand shutdown: {} {} {}", host, port, commandDoc.toJson());
+		log.info("runCommand shutdown: ==> {} {} {}", host, port, commandDoc.toJson());
 
 		Document resultDoc = adminCommand(host, port, commandDoc);
 
-		log.info("runCommand shutdown: {} {} {}", host, port, resultDoc.toJson());
+		log.info("runCommand shutdown: <== {} {} {}", host, port, resultDoc.toJson());
 	}
 
-	public static void replSetResizeOplog(String host, int port, long sizeMB) {
+	public static void replSetResizeOplog(String host, int port, long sizeMB) throws Exception {
 		Document commandDoc = new Document();
 		commandDoc.put("replSetResizeOplog", true);
 		commandDoc.put("size", sizeMB);
 
-		log.info("runCommand replSetResizeOplog: {} {} {}", host, port, commandDoc.toJson());
+		log.info("runCommand replSetResizeOplog: ==> {} {} {}", host, port, commandDoc.toJson());
 
 		Document resultDoc = adminCommand(host, port, commandDoc);
 
-		log.info("runCommand replSetResizeOplog: {} {} {}", host, port, resultDoc.toJson());
+		log.info("runCommand replSetResizeOplog: <== {} {} {}", host, port, resultDoc.toJson());
 	}
 
-	public static void compact(String host, int port, String collectionName, boolean force) {
+	public static void compact(String host, int port, String collectionName, boolean force) throws Exception {
 		Document commandDoc = new Document();
 		commandDoc.put("compact", collectionName);
 		commandDoc.put("force", force);
 
-		log.info("runCommand compact: {} {} {}", host, port, commandDoc.toJson());
+		log.info("runCommand compact: ==> {} {} {}", host, port, commandDoc.toJson());
 
 		Document resultDoc = runCommand(host, port, "local", commandDoc);
 
-		log.info("runCommand compact: {} {} {}", host, port, resultDoc.toJson());
+		log.info("runCommand compact: <== {} {} {}", host, port, resultDoc.toJson());
 	}
 
-	public static void logRotate(String host, int port) {
+	public static void logRotate(String host, int port) throws Exception {
 		Document commandDoc = new Document();
 		commandDoc.put("logRotate", true);
 
-		log.info("runCommand logRotate: {} {} {}", host, port, commandDoc.toJson());
+		log.info("runCommand logRotate: ==> {} {} {}", host, port, commandDoc.toJson());
 
 		Document resultDoc = adminCommand(host, port, commandDoc);
 
-		log.info("runCommand logRotate: {} {} {}", host, port, resultDoc.toJson());
+		log.info("runCommand logRotate: <== {} {} {}", host, port, resultDoc.toJson());
 	}
 
-	public static void restartService(String host, int port, String serviceName) {
+	public static Document removeShard(String host, int port, String shardId) throws Exception {
+		Document commandDoc = new Document();
+		commandDoc.put("removeShard", shardId);
+
+		log.info("runCommand removeShard: ==> {} {} {}", host, port, commandDoc.toJson());
+
+		Document resultDoc = adminCommand(host, port, commandDoc);
+
+		log.info("runCommand removeShard: <== {} {} {}", host, port, resultDoc.toJson());
+
+		return resultDoc;
+	}
+
+	public static void restartService(String host, int port, String serviceName) throws Exception {
+		stopService(host, port, serviceName);
+		startService(serviceName);
+	}
+
+	public static void stopService(String host, int port, String serviceName) throws Exception {
 		try {
 			MongoUtil.shutdown(host, port);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
 
-		try {
-			MyUtil.stopService(serviceName);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
+		MyUtil.stopService(serviceName);
+	}
 
-		try {
-			MyUtil.startService(serviceName);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
+	public static void startService(String serviceName) throws Exception {
+		MyUtil.startService(serviceName);
 	}
 
 	public static void compressLogFile(File clusterDir, int beginShardNumber, int endShardNumber) {
@@ -162,7 +181,7 @@ public class MongoUtil {
 		}
 	}
 
-	public static void logRotateAndCompressLogFile(File clusterDir, int beginShardNumber, int endShardNumber) {
+	public static void logRotateAndCompressLogFile(File clusterDir, int beginShardNumber, int endShardNumber) throws Exception {
 		String host = "127.0.0.1";
 		int beginShardPort = 27000;
 

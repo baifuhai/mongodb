@@ -48,8 +48,8 @@ public class Tests {
 //		int beginShardNumber = 11;
 //		int endShardNumber = 50;
 
-		String mongodbCluster = "E:/dev/mongodb-cluster";
-		String mongodbHome = "E:/dev/mongodb-win32-x86_64-2012plus-4.2.7";
+		String mongodbCluster = "D:/dev/mongodb-cluster";
+		String mongodbHome = "D:/dev/mongodb-win32-x86_64-2012plus-4.2.7";
 
 		String configBindIp = "0.0.0.0";
 		String configIp = "192.168.0.79";

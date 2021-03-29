@@ -74,7 +74,7 @@ public class MongoService implements InitializingBean {
 		}
 	}
 
-	public void logRotateAndCompressLogFile() {
+	public void logRotateAndCompressLogFile() throws Exception {
 		File clusterDir = new File(cluster);
 		MongoUtil.logRotateAndCompressLogFile(clusterDir, beginShardNumber, endShardNumber);
 	}

@@ -2,6 +2,7 @@ package com.test.util;
 
 import com.test.domain.CommandResult;
 import com.test.domain.MongodbParam;
+import com.test.domain.MyBiFunction;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -592,6 +593,37 @@ public class MyUtil {
 		log.info("createService: {} {}", serviceName, binPath);
 		String command = String.format("sc create %s binPath= \"%s\" DisplayName= \"%s\" start= \"auto\"", serviceName, binPath, serviceName);
 		return execute(command);
+	}
+
+	public static void getByPage(int pageSize, long count, boolean reverse, MyBiFunction<Integer, Integer, Boolean> function) throws Exception {
+		/*
+		int skip = 0;
+		int pageNum = 0;
+		int pageCount = (int) Math.ceil(count * 1.0 / pageSize);
+		while (skip < count) {
+			log.info("getByPage ({}/{})", ++pageNum, pageCount);
+			if (!function.apply(skip, pageSize)) {
+				break;
+			}
+			skip += pageSize;
+		}
+		*/
+		int pageCount = (int) Math.ceil(count * 1.0 / pageSize);
+		if (reverse) {
+			for (int pageNum = pageCount; pageNum >= 1; pageNum--) {
+				log.info("getByPage ({}/{})", pageNum, pageCount);
+				if (!function.apply((pageNum - 1) * pageSize, pageSize)) {
+					break;
+				}
+			}
+		} else {
+			for (int pageNum = 1; pageNum <= pageCount; pageNum++) {
+				log.info("getByPage ({}/{})", pageNum, pageCount);
+				if (!function.apply((pageNum - 1) * pageSize, pageSize)) {
+					break;
+				}
+			}
+		}
 	}
 
 }

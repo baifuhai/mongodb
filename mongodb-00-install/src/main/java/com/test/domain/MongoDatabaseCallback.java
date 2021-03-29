@@ -4,6 +4,6 @@ import com.mongodb.client.MongoDatabase;
 
 public interface MongoDatabaseCallback<T> {
 
-	T doWithMongoDatabase(MongoDatabase mongoDatabase);
+	T doWithMongoDatabase(MongoDatabase mongoDatabase) throws Exception;
 
 }
