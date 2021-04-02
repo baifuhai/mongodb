@@ -11,6 +11,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class InstallApplication3 {
@@ -26,7 +32,12 @@ public class InstallApplication3 {
 	private JTextField textFieldCount;
 
 	private JButton button;
+	private JButton buttonStop;
 	private JLabel labelProgressInfo;
+
+	private boolean stop = false;
+
+	private ExecutorService executorService = Executors.newFixedThreadPool(5);
 
 	public void run() {
 		// Panel Container
@@ -83,10 +94,19 @@ public class InstallApplication3 {
 			// TextField count
 			panel.add(new JLabel("count"));
 			textFieldCount = new JTextField(15);
-			textFieldCount.setText("100000");
+			textFieldCount.setText("1000000");
 			panel.add(textFieldCount);
 
-			// Button mongodbCluster
+			// add to panelContainer
+			panelContainer.add(panel);
+		}
+
+		{
+			// Panel
+			JPanel panel = new JPanel();
+			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+			// Button write
 			button = new JButton("测试写入");
 			button.addActionListener(new ActionListener() {
 				@Override
@@ -96,7 +116,18 @@ public class InstallApplication3 {
 						button.setEnabled(false);
 						new Thread(() -> {
 							try {
-								xx(ae);
+								Collection<Callable<Object>> callableList = new ArrayList<>();
+								for (int i = 0; i < 3; i++) {
+									callableList.add(() -> {
+										try {
+											xx(ae);
+										} catch (Exception e) {
+											log.info(e.getMessage(), e);
+										}
+										return null;
+									});
+								}
+								executorService.invokeAll(callableList);
 								JOptionPane.showMessageDialog(panelContainer, "执行成功", "提示", JOptionPane.INFORMATION_MESSAGE);
 							} catch (Exception e) {
 								log.error(e.getMessage(), e);
@@ -110,6 +141,19 @@ public class InstallApplication3 {
 			});
 			panel.add(button);
 
+			// Button stop
+			buttonStop = new JButton("停止写入");
+			buttonStop.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					int returnVal = JOptionPane.showConfirmDialog(panelContainer, "确定？", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if (returnVal == JOptionPane.YES_OPTION) {
+						stop = true;
+					}
+				}
+			});
+			panel.add(buttonStop);
+
 			// Label progressInfo
 			labelProgressInfo = new JLabel("");
 			panel.add(labelProgressInfo);
@@ -120,7 +164,7 @@ public class InstallApplication3 {
 
 		// Frame
 		frame = new JFrame("mysql测试工具");
-		frame.setSize(900, 300);
+		frame.setSize(600, 300);
 		frame.setLocationRelativeTo(null);
 		frame.setContentPane(panelContainer);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -146,40 +190,75 @@ public class InstallApplication3 {
 
 			stmt = conn.createStatement();
 
-			String databaseName = "test" + System.currentTimeMillis();
+			String databaseName = "test_" + UUID.randomUUID().toString().replace("-", "");
 
 			{
 				String sql = "create database " + databaseName;
-				boolean b = stmt.execute(sql);
+				log.info("{}", sql);
+				stmt.execute(sql);
 			}
 
 			{
-				String sql = "CREATE TABLE `" + databaseName + "`.`user` (" +
+				String sql = "" +
+						"CREATE TABLE `" + databaseName + "`.`t_user` (" +
 						"  `id` int(11) NOT NULL AUTO_INCREMENT," +
-						"  `name` varchar(255) DEFAULT NULL," +
-						"  `age` int(11) DEFAULT NULL," +
-						"  `pos` varchar(255) DEFAULT NULL," +
-						"  `seq` int(11) DEFAULT NULL," +
+						"  `a` varchar(255) DEFAULT NULL," +
+						"  `b` varchar(255) DEFAULT NULL," +
+						"  `c` varchar(255) DEFAULT NULL," +
+						"  `d` varchar(255) DEFAULT NULL," +
+						"  `e` varchar(255) DEFAULT NULL," +
+						"  `f` double DEFAULT NULL," +
+						"  `g` varchar(255) DEFAULT NULL," +
+						"  `h` varchar(255) DEFAULT NULL," +
+						"  `i` varchar(255) DEFAULT NULL," +
+						"  `j` bit(1) DEFAULT NULL," +
+						"  `k` varchar(255) DEFAULT NULL," +
+						"  `l` varchar(255) DEFAULT NULL," +
+						"  `m` varchar(255) DEFAULT NULL," +
+						"  `n` varchar(255) DEFAULT NULL," +
+						"  `o` varchar(255) DEFAULT NULL," +
+						"  `p` varchar(255) DEFAULT NULL," +
+						"  `q` bit(1) DEFAULT NULL," +
+						"  `r` varchar(255) DEFAULT NULL," +
 						"  PRIMARY KEY (`id`)" +
 						")";
-				boolean b = stmt.execute(sql);
+				log.info("{}", sql);
+				stmt.execute(sql);
 			}
 
 			{
-				String sql = "INSERT INTO `" + databaseName + "`.`user` (`name`, `age`, `pos`, `seq`) VALUES (?, ?, ?, ?)";
+				String sql = "" +
+						"INSERT INTO `" + databaseName + "`.`t_user` (`a`,`b`,`c`,`d`,`e`,`f`,`g`,`h`,`i`,`j`,`k`,`l`,`m`,`n`,`o`,`p`,`q`,`r`)" +
+						"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				pstmt = conn.prepareStatement(sql);
 
 				long begin = System.currentTimeMillis();
 
+				stop = false;
 				for (int i = 1; i <= count; i++) {
-					pstmt.setString(1, "a");
-					pstmt.setInt(2, 1);
-					pstmt.setString(3, "b");
-					pstmt.setInt(4, 2);
+					pstmt.setString(1, "110000000000000000");
+					pstmt.setString(2, "某某某某某某某某某某某某");
+					pstmt.setString(3, "某某某某某某某某某某某某");
+					pstmt.setString(4, "120000000000000000");
+					pstmt.setString(5, "某某某某某某某某某某某某");
+					pstmt.setDouble(6, 0.0);
+					pstmt.setString(7, "130000000000000000");
+					pstmt.setString(8, "某某某某某某某某某某某某");
+					pstmt.setString(9, "某某某某某某某某某某某某");
+					pstmt.setInt(10, 1);
+					pstmt.setString(11, "140000000000000000,150000000000000000");
+					pstmt.setString(12, "某某某某某某某某某某某某,某某某某某某某某某某某某");
+					pstmt.setString(13, "[true,true]");
+					pstmt.setString(14, "160000000000000000,170000000000000000");
+					pstmt.setString(15, "某某某某某某某某某某某某,某某某某某某某某某某某某");
+					pstmt.setString(16, "[false,false]");
+					pstmt.setInt(17, 1);
+					pstmt.setString(18, "180000000000000000");
 					pstmt.addBatch();
 
 					if (i % 5000 == 0 || i == count) {
 						pstmt.executeBatch();
+						log.info("pstmt.executeBatch({}/{})", i, count);
 					}
 
 					if (i % 100 == 0 || i == count) {
@@ -188,11 +267,17 @@ public class InstallApplication3 {
 						double seconds = (end - begin) / 1000.0;
 						labelProgressInfo.setText(String.format("(%d/%d) %.2f%% %.2fs", i, count, percent, seconds));
 					}
+
+					if (stop) {
+						break;
+					}
 				}
 			}
 
 			{
-				boolean b = stmt.execute("drop database " + databaseName);
+				String sql = "drop database " + databaseName;
+				log.info("{}", sql);
+				stmt.execute(sql);
 			}
 
 			conn.commit();
