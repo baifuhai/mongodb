@@ -39,8 +39,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class InstallApplication {
 
-	private JFrame frame;
+	private static InstallApplication INSTANCE = null;
 
+	private JFrame frame;
 	private JPanel panelContainer;
 
 	private JFileChooser fileChooser;
@@ -58,7 +59,22 @@ public class InstallApplication {
 
 	private JTextPane textPane;
 
-	public void run() {
+	public static InstallApplication getInstance(boolean singleton) {
+		if (singleton) {
+			if (INSTANCE == null) {
+				synchronized (InstallApplication.class) {
+					if (INSTANCE == null) {
+						INSTANCE = new InstallApplication(true);
+					}
+				}
+			}
+			return INSTANCE;
+		} else {
+			return new InstallApplication(false);
+		}
+	}
+
+	private InstallApplication(boolean singleton) {
 		// Panel Container
 		panelContainer = new JPanel();
 		panelContainer.setLayout(new BoxLayout(panelContainer, BoxLayout.Y_AXIS));
@@ -1204,12 +1220,16 @@ public class InstallApplication {
 		frame.setSize(600, 570);
 		frame.setLocationRelativeTo(null);
 		frame.setContentPane(panelContainer);
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(singleton ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setResizable(false);
+		frame.setVisible(false);
+	}
+
+	public void show() {
 		frame.setVisible(true);
 	}
 
-	public void step2(File clusterDir) throws Exception {
+	private void step2(File clusterDir) throws Exception {
 		File configCfgFile = new File(clusterDir, "config/mongo.cfg");
 		log.info("step2: configCfgFile: {}", configCfgFile.getAbsolutePath());
 		_step2(configCfgFile);

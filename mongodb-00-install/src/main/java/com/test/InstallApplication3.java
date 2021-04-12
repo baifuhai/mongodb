@@ -21,8 +21,9 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class InstallApplication3 {
 
-	private JFrame frame;
+	private static InstallApplication3 INSTANCE = null;
 
+	private JFrame frame;
 	private JPanel panelContainer;
 
 	private JTextField textFieldIp;
@@ -39,7 +40,22 @@ public class InstallApplication3 {
 
 	private ExecutorService executorService = Executors.newFixedThreadPool(5);
 
-	public void run() {
+	public static InstallApplication3 getInstance(boolean singleton) {
+		if (singleton) {
+			if (INSTANCE == null) {
+				synchronized (InstallApplication3.class) {
+					if (INSTANCE == null) {
+						INSTANCE = new InstallApplication3(true);
+					}
+				}
+			}
+			return INSTANCE;
+		} else {
+			return new InstallApplication3(false);
+		}
+	}
+
+	private InstallApplication3(boolean singleton) {
 		// Panel Container
 		panelContainer = new JPanel();
 		panelContainer.setLayout(new BoxLayout(panelContainer, BoxLayout.Y_AXIS));
@@ -167,8 +183,12 @@ public class InstallApplication3 {
 		frame.setSize(600, 300);
 		frame.setLocationRelativeTo(null);
 		frame.setContentPane(panelContainer);
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(singleton ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setResizable(false);
+		frame.setVisible(false);
+	}
+
+	public void show() {
 		frame.setVisible(true);
 	}
 

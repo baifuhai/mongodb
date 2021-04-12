@@ -23,8 +23,9 @@ import java.util.List;
 @Slf4j
 public class InstallApplication2 {
 
-	private JFrame frame;
+	private static InstallApplication2 INSTANCE = null;
 
+	private JFrame frame;
 	private JPanel panelContainer;
 
 	private JTextField textFieldMongodbCluster;
@@ -54,7 +55,22 @@ public class InstallApplication2 {
 
 	private JTextPane textPane;
 
-	public void run() {
+	public static InstallApplication2 getInstance(boolean singleton) {
+		if (singleton) {
+			if (INSTANCE == null) {
+				synchronized (InstallApplication2.class) {
+					if (INSTANCE == null) {
+						INSTANCE = new InstallApplication2(true);
+					}
+				}
+			}
+			return INSTANCE;
+		} else {
+			return new InstallApplication2(false);
+		}
+	}
+
+	private InstallApplication2(boolean singleton) {
 		// Panel Container
 		panelContainer = new JPanel();
 		panelContainer.setLayout(new BoxLayout(panelContainer, BoxLayout.Y_AXIS));
@@ -289,8 +305,12 @@ public class InstallApplication2 {
 		frame.setSize(900, 900);
 		frame.setLocationRelativeTo(null);
 		frame.setContentPane(panelContainer);
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(singleton ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setResizable(false);
+		frame.setVisible(false);
+	}
+
+	public void show() {
 		frame.setVisible(true);
 	}
 

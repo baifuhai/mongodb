@@ -23,8 +23,9 @@ import java.util.Map;
 @Slf4j
 public class DiskFileInfoApplication {
 
-	private JFrame frame;
+	private static DiskFileInfoApplication INSTANCE = null;
 
+	private JFrame frame;
 	private JPanel panelContainer;
 
 	private JLabel lebel;
@@ -33,7 +34,22 @@ public class DiskFileInfoApplication {
 
 	private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
 
-	public void run() {
+	public static DiskFileInfoApplication getInstance(boolean singleton) {
+		if (singleton) {
+			if (INSTANCE == null) {
+				synchronized (DiskFileInfoApplication.class) {
+					if (INSTANCE == null) {
+						INSTANCE = new DiskFileInfoApplication(true);
+					}
+				}
+			}
+			return INSTANCE;
+		} else {
+			return new DiskFileInfoApplication(false);
+		}
+	}
+
+	private DiskFileInfoApplication(boolean singleton) {
 		// Panel Container
 		panelContainer = new JPanel();
 		panelContainer.setLayout(new BoxLayout(panelContainer, BoxLayout.Y_AXIS));
@@ -146,8 +162,12 @@ public class DiskFileInfoApplication {
 		frame.setSize(600, 300);
 		frame.setLocationRelativeTo(null);
 		frame.setContentPane(panelContainer);
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(singleton ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setResizable(false);
+		frame.setVisible(false);
+	}
+
+	public void show() {
 		frame.setVisible(true);
 	}
 
