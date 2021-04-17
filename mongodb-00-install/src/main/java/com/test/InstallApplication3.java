@@ -84,7 +84,7 @@ public class InstallApplication3 {
 			// TextField port
 			panel.add(new JLabel("port"));
 			textFieldPort = new JTextField(15);
-			textFieldPort.setText("3308");
+			textFieldPort.setText("3001");
 			panel.add(textFieldPort);
 
 			// add to panelContainer
