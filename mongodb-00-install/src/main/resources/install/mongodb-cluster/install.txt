@@ -33,6 +33,8 @@ ${addShard}
 sh.enableSharding("zd_pd_data_middle_platform")
 
 sh.shardCollection("zd_pd_data_middle_platform.t_busbar_ground_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_ground_disconnector_info", {occur_time: 1})
+sh.shardCollection("zd_pd_data_middle_platform.t_health_level_score_detail", {occur_time: 1})
 sh.shardCollection("zd_pd_data_middle_platform.t_measure_breaker_info", {occur_time: 1})
 sh.shardCollection("zd_pd_data_middle_platform.t_measure_busbar_info", {occur_time: 1})
 sh.shardCollection("zd_pd_data_middle_platform.t_measure_line_info", {occur_time: 1})
@@ -50,6 +52,8 @@ sh.shardCollection("zd_pd_data_middle_platform.t_tran_temperature_info", {occur_
 use zd_pd_data_middle_platform
 
 db.t_busbar_ground_info.dropIndex("occur_time_1")
+db.t_ground_disconnector_info.dropIndex("occur_time_1")
+db.t_health_level_score_detail.dropIndex("occur_time_1")
 db.t_measure_breaker_info.dropIndex("occur_time_1")
 db.t_measure_busbar_info.dropIndex("occur_time_1")
 db.t_measure_line_info.dropIndex("occur_time_1")
