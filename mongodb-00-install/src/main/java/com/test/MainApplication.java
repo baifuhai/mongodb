@@ -54,6 +54,16 @@ public class MainApplication {
 			});
 			panel.add(button3);
 
+			// Button cpuTest
+			JButton buttonCpuTest = new JButton("cpu测试工具");
+			buttonCpuTest.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					CpuTestApplication.getInstance(true).show();
+				}
+			});
+			panel.add(buttonCpuTest);
+
 			// Button
 			JButton button4 = new JButton("硬盘文件信息获取工具");
 			button4.addActionListener(new ActionListener() {

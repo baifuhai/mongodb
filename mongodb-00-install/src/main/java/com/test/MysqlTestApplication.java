@@ -439,6 +439,7 @@ public class MysqlTestApplication {
 			pstmt = conn.prepareStatement(sql);
 
 			stop = false;
+
 			for (int i = 1; i <= count; i++) {
 				pstmt.setString(1, "110000000000000000");
 				pstmt.setString(2, "某某某某某某某某某某某某");
