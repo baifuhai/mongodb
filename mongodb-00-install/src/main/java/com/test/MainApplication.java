@@ -49,7 +49,7 @@ public class MainApplication {
 			button3.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent ae) {
-					InstallApplication3.getInstance(true).show();
+					MysqlTestApplication.getInstance(true).show();
 				}
 			});
 			panel.add(button3);

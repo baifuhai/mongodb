@@ -22,9 +22,9 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class InstallApplication3 {
+public class MysqlTestApplication {
 
-	private static InstallApplication3 INSTANCE = null;
+	private static MysqlTestApplication INSTANCE = null;
 
 	private JFrame frame;
 	private JPanel panelContainer;
@@ -50,22 +50,22 @@ public class InstallApplication3 {
 
 	private ExecutorService executorService = Executors.newFixedThreadPool(50);
 
-	public static InstallApplication3 getInstance(boolean singleton) {
+	public static MysqlTestApplication getInstance(boolean singleton) {
 		if (singleton) {
 			if (INSTANCE == null) {
-				synchronized (InstallApplication3.class) {
+				synchronized (MysqlTestApplication.class) {
 					if (INSTANCE == null) {
-						INSTANCE = new InstallApplication3(true);
+						INSTANCE = new MysqlTestApplication(true);
 					}
 				}
 			}
 			return INSTANCE;
 		} else {
-			return new InstallApplication3(false);
+			return new MysqlTestApplication(false);
 		}
 	}
 
-	private InstallApplication3(boolean singleton) {
+	private MysqlTestApplication(boolean singleton) {
 		// Panel Container
 		panelContainer = new JPanel();
 		panelContainer.setLayout(new BoxLayout(panelContainer, BoxLayout.Y_AXIS));
