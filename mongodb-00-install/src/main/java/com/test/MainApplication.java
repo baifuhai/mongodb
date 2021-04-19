@@ -44,6 +44,15 @@ public class MainApplication {
 			});
 			panel.add(button2);
 
+			// add to panelContainer
+			panelContainer.add(panel);
+		}
+
+		{
+			// Panel
+			JPanel panel = new JPanel();
+			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
 			// Button
 			JButton button3 = new JButton("mysql测试工具");
 			button3.addActionListener(new ActionListener() {
@@ -63,6 +72,15 @@ public class MainApplication {
 				}
 			});
 			panel.add(buttonCpuTest);
+
+			// add to panelContainer
+			panelContainer.add(panel);
+		}
+
+		{
+			// Panel
+			JPanel panel = new JPanel();
+			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
 			// Button
 			JButton button4 = new JButton("硬盘文件信息获取工具");

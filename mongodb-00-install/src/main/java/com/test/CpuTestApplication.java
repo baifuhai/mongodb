@@ -63,13 +63,13 @@ public class CpuTestApplication {
 			// TextField dataCount
 			panel.add(new JLabel("dataCount"));
 			textFieldDataCount = new JTextField(15);
-			textFieldDataCount.setText("500000");
+			textFieldDataCount.setText("50000");
 			panel.add(textFieldDataCount);
 
 			// TextField sortCount
 			panel.add(new JLabel("sortCount"));
 			textFieldSortCount = new JTextField(15);
-			textFieldSortCount.setText("50");
+			textFieldSortCount.setText("300");
 			panel.add(textFieldSortCount);
 
 			// add to panelContainer
@@ -152,7 +152,7 @@ public class CpuTestApplication {
 
 		// Frame
 		frame = new JFrame("cpu测试工具");
-		frame.setSize(600, 500);
+		frame.setSize(600, 410);
 		frame.setLocationRelativeTo(null);
 		frame.setContentPane(panelContainer);
 		frame.setDefaultCloseOperation(singleton ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
@@ -197,7 +197,14 @@ public class CpuTestApplication {
 						double percent = j * 100.0 / sortCount;
 						double seconds = (end - begin) / 1000.0;
 						messageList.set(index, String.format("(%d/%d) %.2f%% %.2fs", j, sortCount, percent, seconds));
-						textPane.setText(messageList.stream().collect(Collectors.joining("\n")));
+						if (index == 0) {
+							textPane.setText(messageList.stream().collect(Collectors.joining("\n")));
+						}
+						if (j == sortCount) {
+							synchronized (textPane) {
+								textPane.setText(messageList.stream().collect(Collectors.joining("\n")));
+							}
+						}
 					}
 
 					if (stop) {

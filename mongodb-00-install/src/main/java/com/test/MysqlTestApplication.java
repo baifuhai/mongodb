@@ -471,7 +471,14 @@ public class MysqlTestApplication {
 					double percent = i * 100.0 / count;
 					double seconds = (end - begin) / 1000.0;
 					messageList.set(index, String.format("(%d/%d) %.2f%% %.2fs", i, count, percent, seconds));
-					textPane.setText(messageList.stream().collect(Collectors.joining("\n")));
+					if (index == 0) {
+						textPane.setText(messageList.stream().collect(Collectors.joining("\n")));
+					}
+					if (i == count) {
+						synchronized (textPane) {
+							textPane.setText(messageList.stream().collect(Collectors.joining("\n")));
+						}
+					}
 				}
 
 				if (stop) {
